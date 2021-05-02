@@ -3,8 +3,6 @@ import sys
 from random import randint, choice
 
 
-
-
 ROJO = (255, 0, 0)
 AZUL = (0, 0, 255)
 VERDE = (0, 255, 0)
@@ -18,20 +16,27 @@ pantalla = pg.display.set_mode((ANCHO,ALTO))
 reloj = pg.time.Clock()
 
 class Bola():
-    def __init__(self, x, y, vx, vy, color):
+    def __init__(self, x, y, vx=5, vy=5, color=(255, 255, 255), radio=10):
         self.x = x
         self.y = y
         self.vx = vx
         self.vy = vy
         self.color = color
+        self.radio = radio
 
-    def rebota(self):
-        if self.y <= 0 or self.y >= ALTO: 
-            self vy = -self.vy 
+    def actualizar(self):
+       self.x +=self.vx
+       self.y +=self.vy
+        
+       if self.y <= 0 or self.y >= ALTO: 
+            self.vy = -self.vy 
  
-        if self.x <= 0 or self.x >= ANCHO: 
-             self vx = -self.vx
+       if self.x <= 0 or self.x >= ANCHO: 
+             self.vx = -self.vx
     
+
+    def dibujar(self, lienzo):
+        pg.draw.circle(lienzo, self.color, (self.x, self.y), self.radio) 
    
 
 bolas = []
@@ -55,16 +60,19 @@ while not game_over:
     
     #Modificacion de estado
     for bola in bolas:
-        
-        bola.x += bola.vx
+        bola.actualizar()
+        '''
+        bola.x += bola.vx #Esto se mete dentro de la clase Bola, funcion actualizar, para trasladar todos lo parametros de la bola a us clase
         bola.y += bola.vy
-
-        bola.rebota()
+        '''
+        
+        
 
     # Gestion de la pantalla
     pantalla.fill(NEGRO) #Pinta la pantalla de negro antes de cada movimiento
     for bola in bolas:
-        pg.draw.circle(pantalla, bola.color, (bola.x, bola.y), 10)
+        bola.dibujar(pantalla)
+        pg.draw.circle(pantalla, bola.color, (bola.x, bola.y), 10) 
    
 
     pg.display.flip() #Renderiza la pantalla y muestra los cambios producidos por los eventos
