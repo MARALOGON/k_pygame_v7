@@ -23,7 +23,6 @@ class Bola():
         self.vx = vx
         self.vy = vy
         self.color = color
-        self.radio = randint(5, 10)
         self.anchura = radio * 2
         self.altura = radio * 2
 
@@ -43,7 +42,6 @@ class Bola():
             self.y = ALTO // 2
             self.vx = randint(5, 10)*choice([-1, 1])
             self.vy = randint(5, 10)*choice([-1, 1])
-            pg.time.delay(500)
             return True
         else:
             return False
@@ -55,14 +53,7 @@ class Bola():
 
 
     def comprueba_colision(self, objeto):
-        '''
-        if self.x >= objeto.x and self.x <= objeto.x + objeto.anchura or \
-           self.x + self.anchura >= objeto.x and self.x + self. anchura <= objeto,x + objeto.anchura:
-            choqueX = True
-        else: 
-            choqueX = False
-        '''
-
+       
         choqueX = self.x >= objeto.x and self.x <= objeto.x + objeto.anchura or \
            self.x + self.anchura >= objeto.x and self.x + self. anchura <= objeto.x + objeto.anchura
         choqueY = self.y >= objeto.y and self.y <= objeto.y + objeto.altura or \
@@ -70,6 +61,9 @@ class Bola():
 
         if choqueX and choqueY:
             self.vy *= -1
+            return True
+        return False
+
 
 class Raqueta():
     def __init__(self, x=0, y=0):
@@ -79,7 +73,7 @@ class Raqueta():
         self.x = (ANCHO - self.anchura) // 2
         self.y = ALTO - self.altura - 15
         self.vy = 0
-        self.vx = 7
+        self.vx = 13
 
 
     def dibujar(self, lienzo):
@@ -90,10 +84,12 @@ class Raqueta():
     def actualizar(self):
         teclas_pulsadas = pg.key.get_pressed()
         if teclas_pulsadas[pg.K_LEFT] and self.x > 0:
-            raqueta.x -= raqueta.vx
+            self.x -= self.vx
         if teclas_pulsadas[pg.K_RIGHT] and self.x < ANCHO - self.anchura:
-            raqueta.x += raqueta.vx
+            self.x += self.vx
 
+
+puntuacion = 0
 vidas = 3
 bola = Bola(randint(0, ANCHO),
             randint(0, ALTO),
@@ -103,42 +99,63 @@ bola = Bola(randint(0, ANCHO),
     
 
 raqueta = Raqueta()
-
+txtGameOver = pg.font.SysFont("arial", 35)
+txtPuntuacion = pg.font.SysFont("helvetica", 28)
+pierdebola = False
 game_over = False
 while not game_over and vidas > 0:
     v = reloj.tick(25)
+    if pierdebola:
+        pg.time.delay(500)
+
 
     #Gestion de eventos
     for evento in pg.event.get():
         if evento.type == pg.QUIT:
             game_over = True
 
+        '''
         if evento.type == pg.KEYDOWN:
             if evento.key == pg.K_LEFT:
                 raqueta.x -= raqueta.vx
             if evento.key == pg.K_RIGHT:
                 raqueta.x += raqueta.vx
-    
+        '''
    
 
     # Modificación de estado
+    raqueta.actualizar()
     pierdebola = bola.actualizar()
+    pantalla.fill(NEGRO)
     if pierdebola:
         vidas -= 1
-    raqueta.actualizar()
-    bola.comprueba_colision(raqueta)
+        if vidas == 0:
+            texto = txtGameOver.render("Game Over", True, (0, 255, 255))
+            pantalla.blit(texto, (400, 300))
+        else:
+            bola.x = 400
+            bola.y = 300
+            bola.dibujar(pantalla)
+            raqueta.dibujar(pantalla)
+            
+    else:
+        if bola.comprueba_colision(raqueta):
+            puntuacion += 5
+        
 
 
     
     # Gestión de la pantalla
-    pantalla.fill(NEGRO)
+    texto = txtPuntuacion.render(str(puntuacion), True, (255, 255, 0))
+    pantalla.blit(texto, (20, 20))
     bola.dibujar(pantalla)
     raqueta.dibujar(pantalla)
-    
-    
-
+  
 
     pg.display.flip()
+        
+
+pg.time.delay(1000)
 
 pg.quit()
 sys.exit()
