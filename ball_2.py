@@ -3,6 +3,7 @@
 import pygame as pg
 import sys, os
 import random
+from enum import Enum
 
 
 ANCHO = 800
@@ -11,17 +12,19 @@ FPS = 60
 BLANCO = (255, 255, 255)
 ROJO = (255, 0, 0)
 
+
+
 class Marcador(pg.sprite.Sprite):
     def __init__(self, x, y, fontsize=25, color=BLANCO):
         super().__init__()
-        self.fuente = pg.font.SysFont('PTMono.ttc', 30)
+        self.fuente = pg.font.Font(os.path.join('PTMono.ttc'), 30)
         self.text = "0"
         self.color = color
         self.image = self.fuente.render(str(self.text), True, self.color)
         self.rect = self.image.get_rect(topleft=(x,y))
         
     
-    def update(self, dt):
+    def update(self, dt): #La funcion update debe incluida en todas las clases
         self.image = self.fuente.render(str(self.text), True, self.color)
 
 class Raqueta(pg.sprite.Sprite):
@@ -66,6 +69,11 @@ class Raqueta(pg.sprite.Sprite):
             self.milisegundos_acumulados = 0
         self.image = self.imagenes[self.imagen_actual]
 
+class EstadoBola(Enum):
+    viva = 0
+    agonizando = 1 
+    muerta = 2
+
 
 class Bola(pg.sprite.Sprite):
     def __init__(self, x, y):
@@ -75,7 +83,9 @@ class Bola(pg.sprite.Sprite):
        self.rect = self.image.get_rect(center=(x,y)) #Este get_rect devuelve un rectangulo del mismo tamaño (en este caso 30x30px) en el que está pintada la imagen que hemos cargado
        self.xOriginal = x
        self.yOriginal = y
-       self.estoyViva = True
+       #self.estado = 0 # 0 = Bola viva, 1 - Bola agonizando (5 ikmagenes), 2 - Bola muerta
+       self.estado = EstadoBola.viva
+
 
        self.vx = random.randint(5, 10) * random.choice([1, 1])
        self.vy = random.randint(5, 10) * random.choice([1, 1])
@@ -88,7 +98,7 @@ class Bola(pg.sprite.Sprite):
 
 
     def update(self,dt):
-        if self.estoyViva:
+        if self.estado == EstadoBola.viva:
             self.rect.x += self.vx
             self.rect.y += self.vy
 
@@ -98,16 +108,16 @@ class Bola(pg.sprite.Sprite):
                 self.vy *= -1
 
             if self.rect.bottom >= ALTO:
-                self.estoyViva = False
+                self.estado = EstadoBola.muerta
 
         else: 
             self.rect.center = (self.xOriginal, self.yOriginal)
             self.vx = random.randint(5, 10) * random.choice([1, 1])
             self.vy = random.randint(5, 10) * random.choice([1, 1])
-            self.estoyViva = True
+            self.estado = EstadoBola.muerta
 
 class Game():
-    def __init__(self):
+    def __init__(self): #se crean los atributos de Game dentro de la funcion constructoria
         self.pantalla = pg.display.set_mode((ANCHO, ALTO))
         self.vidas = 3
         self.todoGrupo = pg.sprite.Group()
@@ -147,7 +157,7 @@ class Game():
             self.cuentaSegundos.text = segundero
             self.bola.prueba_colision(self.grupoJugador)
             self.todoGrupo.update(dt)
-            if not self.bola.estoyViva:
+            if not self.bola.estado == EstadoBola.muerta:
                 self.vidas -=1
         
             self.pantalla.fill((0, 0, 0))
@@ -158,6 +168,6 @@ class Game():
 
 if __name__ == '__main__':
     pg.init()
-    game = Game()
-    game.bucle_principal()
+    game = Game() #instancia Game
+    game.bucle_principal() #llamar al juego, la clase game llama al resto de clases
 

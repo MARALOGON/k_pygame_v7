@@ -72,7 +72,7 @@ while not game_over:
     pantalla.fill(NEGRO) #Pinta la pantalla de negro antes de cada movimiento
     for bola in bolas:
         bola.dibujar(pantalla)
-        pg.draw.circle(pantalla, bola.color, (bola.x, bola.y), 10) 
+        
    
 
     pg.display.flip() #Renderiza la pantalla y muestra los cambios producidos por los eventos

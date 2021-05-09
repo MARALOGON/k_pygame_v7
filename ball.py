@@ -1,5 +1,5 @@
 import pygame as pg
-import sys
+import sys, os
 from random import randint, choice
 
 
@@ -99,8 +99,10 @@ bola = Bola(randint(0, ANCHO),
     
 
 raqueta = Raqueta()
-txtGameOver = pg.font.SysFont("arial", 35)
-txtPuntuacion = pg.font.SysFont("helvetica", 28)
+#consolas = pg.font.match_font('Comic Sans')
+txtGameOver = pg.font.Font(None, 35)
+txtPuntuacion = pg.font.Font(None, 26)
+#txtPuntuacion = pg.font.Font(os.path.join('PTMono.ttc'), 16)
 pierdebola = False
 game_over = False
 while not game_over and vidas > 0:
