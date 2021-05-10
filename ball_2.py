@@ -11,41 +11,11 @@ FPS = 60
 BLANCO = (255, 255, 255)
 ROJO = (255, 0, 0)
 
-''' #Este lo dejamos comentado porque hemos creado otra clase Marcador alternativa 
-class Marcador(pg.sprite.Sprite):
+levels = [
+    'level1' : ['XXXXXXXX', 'X--DD--X', 'X--DD--X', 'XXXXXXXX', '---DD---'], 
+    'level2' : ['DDDDDDDD', 'DDDDDDDD', 'DDDDDDDD', 'DDDDDDDD']
+    ]
 
-    class Justificado():
-        izquierda = 'I'
-        derecha = 'D'
-        centro  = 'C'
-
-    def __init__(self, x, y, justificado, fontsize=25, color=BLANCO):
-        super().__init__()
-        self.fuente = pg.font.Font(os.path.join('PTMono.ttc'), 30)
-        self.text = "0"
-        self.color = color
-        self.x = x
-        self.y = y
-        if not justificado:
-            self.justificado = Marcador.Justificado.izquierda
-        else:
-            self.justificado = justificado
-
-        self.image = self.fuente.render(str(self.text), True, self.color)
-
-        
-    
-    def update(self, dt): #La funcion update debe ir incluida en todas las clases
-        self.image = self.fuente.render(str(self.text), True, self.color)
-
-        #Esta es una version normal con if para seleccionar donde vamos a poner los marcadores
-        if self.justificado == Marcador.Justificado.izquierda:
-            self.rect = self.image.get_rect(topleft=(self.x,self.y))
-        elif self.justificado == Marcador.Justificado.derecha:
-            self.rect = self.image.get_rect(topright=(self.x,self.y))
-        else:
-            self.rect = self.image.get_rect(midtop=(self.x,self.y))    
-'''
 
 #Aqui vamos a crear una version de la clase marcador mas reducida para el tema de los justificados de los marcadores
 class MarcadorAlt(pg.sprite.Sprite):
@@ -72,6 +42,7 @@ class MarcadorAlt(pg.sprite.Sprite):
 
 class CuentaVidas(MarcadorAlt): #Creamos este marcador que hereda de la clase MarcadorAlt para darle la responsabilidad del marcador vidas
     plantilla = "Vidas: {}"
+
 
 class Ladrillo(pg.sprite.Sprite):
     disfraces = ['greenTile.png', 'redTile.png', 'redTileBreak.png']
@@ -103,7 +74,6 @@ class Ladrillo(pg.sprite.Sprite):
         self.numGolpes += 1
         return self.numGolpes > 0 and not self.esDuro or self.numGolpes > 1 and self.esDuro
             
-
 
 class Raqueta(pg.sprite.Sprite):
     disfraces = ['electric00.png', 'electric01.png', 'electric02.png']
@@ -149,6 +119,7 @@ class Raqueta(pg.sprite.Sprite):
 
 class Bola(pg.sprite.Sprite):
     disfraces = ['ball1.png','ball2.png', 'ball3.png', 'ball4.png', 'ball5.png']
+
 
     class EstadoBola(Enum): #Una clase puede estar dentro de otra clase, lo que se llama comoposicion de clases
         viva = 0
@@ -224,15 +195,9 @@ class Game():
         self.todoGrupo = pg.sprite.Group()
         self.grupoJugador = pg.sprite.Group()
         self.grupoLadrillos = pg.sprite.Group()
+        self.level = 0
 
-        #En estos bucles for se crean las fias y columnas de ladrillos
-        for fila in range(4): 
-            for columna in range(8):
-                x = columna * 100 + 5
-                y = fila * 40 + 5
-                esDuro = random.randint(1, 10) == 1
-                ladrillo = Ladrillo(x, y, esDuro)
-                self.grupoLadrillos.add(ladrillo)
+        self.disponer_ladrillos(levels[self.level])
 
         self.cuentaPuntos = MarcadorAlt(10,10)
         self.cuentaVidas = CuentaVidas(790,10, "topright") #Metiendo aqui la llamada a la Clase Cuentavidas conseguimos que la clase Game no tenga mas responsabilidad con el marcador que informar 
@@ -247,7 +212,28 @@ class Game():
         self.todoGrupo.add(self.grupoJugador, self.grupoLadrillos)
         self.todoGrupo.add(self.cuentaPuntos, self.cuentaVidas)
 
-
+    #En esta funcion se crean las filas y columnas de ladrillos segun el mapa de level1
+    def disponer_ladrillos(self, level): 
+        for fila, cadena in enumerate(level):
+            for columna, caracter in enumerate(cadena):
+                if caracter in "XD":
+                    x = 5 + (100 * columna)
+                    y = 5 + (40 * fila)
+                    ladrillo = Ladrillo(x, y, caracter == 'D')
+                    self.grupoLadrillos.add(ladrillo)
+                    
+              
+                ''' Esta es una forma de crear los ladrillos segun el mapa del level pero mas repetitiva que la anterior, es la que sale en un primer pensado
+             for caracter in level[fila]:   
+                if caracter == 'X':
+                    ladrillo = Ladrillo(x, y)
+                    self.grupoLadrillos.add(ladrillo)
+                elif caracter == 'D':
+                    esDuro = True 
+                    ladrillo = Ladrillo(x, y, esDuro)
+                    self.grupoLadrillos.add(ladrillo)
+                contador += 1
+                '''
     def bucle_principal(self):
         game_over = False
         reloj = pg.time.Clock()
@@ -268,6 +254,10 @@ class Game():
                 if ladrillo.desaparece():
                     self.grupoLadrillos.remove(ladrillo)
                     self.todoGrupo.remove(ladrillo)
+                    if len(self.grupoLadrillos) == 0:
+                        self.level += 1
+                        self.disponer_ladrillos(levels(self.level))
+                        self.todoGrupo.add(self.grupoLadrillos)
 
             self.todoGrupo.update(dt)
             if self.bola.estado == Bola.EstadoBola.muerta:
