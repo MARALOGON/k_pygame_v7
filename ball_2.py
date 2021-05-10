@@ -38,36 +38,40 @@ class Marcador(pg.sprite.Sprite):
     def update(self, dt): #La funcion update debe ir incluida en todas las clases
         self.image = self.fuente.render(str(self.text), True, self.color)
 
-        ''' #Esta es una version normal con if para seleccionar donde vamos a poner los marcadores
+        #Esta es una version normal con if para seleccionar donde vamos a poner los marcadores
         if self.justificado == Marcador.Justificado.izquierda:
             self.rect = self.image.get_rect(topleft=(self.x,self.y))
         elif self.justificado == Marcador.Justificado.derecha:
             self.rect = self.image.get_rect(topright=(self.x,self.y))
         else:
-            self.rect = self.image.get_rect(midtop=(self.x,self.y))
-        '''
+            self.rect = self.image.get_rect(midtop=(self.x,self.y))    
 '''
 
-#Aqui vamos a crear una v ersion de la clase marcador mas reducida para el tema de los justificados de los marcadores
+#Aqui vamos a crear una version de la clase marcador mas reducida para el tema de los justificados de los marcadores
 class MarcadorAlt(pg.sprite.Sprite):
-
+    plantilla = "{}"
 
     def __init__(self, x, y, justificado = 'topleft', fontsize=25, color=BLANCO):
         super().__init__()
         self.fuente = pg.font.Font(os.path.join('PTMono.ttc'), 30)
-        self.text = "0"
+        self.text = ""
         self.color = color
         self.x = x
         self.y = y
         self.justificado = justificado
-        self.image = self.fuente.render(str(self.text), True, self.color)
+        self.image = None
+        self.rect = None
 
         
     
     def update(self, dt): #La funcion update debe ir incluida en todas las clases
-        self.image = self.fuente.render(str(self.text), True, self.color)
+        self.image = self.fuente.render(self.plantilla.format(self.text), True, self.color)
         dict = {self.justificado: (self.x, self.y)}
         self.rect = self.image.get_rect(**dict)
+
+
+class Cuentavidas(MarcadorAlt): #Creamos este marcador que hereda de la clase MarcadorAlt para darle la responsabilidad del marcador vidas
+    plantilla = "Vidas: {}"
 
 
 class Raqueta(pg.sprite.Sprite):
@@ -180,6 +184,7 @@ class Bola(pg.sprite.Sprite):
             self.vy = random.randint(5, 10) * random.choice([1, 1])
             self.estado = Bola.EstadoBola.viva
 
+
 class Game():
     def __init__(self): #se crean los atributos de Game dentro de la funcion constructoria
         self.pantalla = pg.display.set_mode((ANCHO, ALTO))
@@ -188,9 +193,10 @@ class Game():
         self.grupoJugador = pg.sprite.Group()
         self.grupoLadrillos = pg.sprite.Group()
 
-        self.cuentaSegundos = Marcador(10,10)
-        self.cuentaVidas = Marcador(790,10, "topright")
+        self.cuentaSegundos = MarcadorAlt(10,10)
+        self.cuentaVidas = CuentaVidas(790,10, "topright") #Metiendo aqui la llamada a la Clase Cuentavidas conseguimos que la clase Game no tenga mas responsabilidad con el marcador que informar 
         self.todoGrupo.add(self.cuentaSegundos, self.cuentaVidas)
+        self.fondo = pg.image.load("./images/background.png")
 
         self.bola = Bola(ANCHO // 2, ALTO // 2)
         self.todoGrupo.add(self.bola)
@@ -225,7 +231,7 @@ class Game():
             if self.bola.estado == Bola.EstadoBola.muerta:
                 self.vidas -=1
         
-            self.pantalla.fill((0, 0, 0))
+            self.pantalla.blit(self.fondo, (0,0))
             self.todoGrupo.draw(self.pantalla)
             
 
