@@ -1,8 +1,7 @@
-from arkanoid import ANCHO, ALTO, FPS, BLANCO, ROJO
+from arkanoid2 import ANCHO, ALTO, FPS, BLANCO, ROJO
 import pygame as pg
 import random
 from enum import Enum
-
 
 
 class MarcadorAlt(pg.sprite.Sprite):
@@ -165,4 +164,3 @@ class Bola(pg.sprite.Sprite):
             self.vx = random.randint(5, 10) * random.choice([1, 1])
             self.vy = random.randint(5, 10) * random.choice([1, 1])
             self.estado = Bola.EstadoBola.viva
-

@@ -1,5 +1,5 @@
-from arkanoid import ANCHO, ALTO, FPS
-from arkanoid.scenes import Portada, Game
+from arkanoid2 import ANCHO, ALTO, FPS
+from arkanoid2.scenes import Portada, Game
 import pygame as pg
 
 pg.init()

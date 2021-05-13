@@ -1,5 +1,5 @@
-from arkanoid import ANCHO, ALTO, FPS, BLANCO, ROJO, levels
-from arkanoid.entities import MarcadorAlt, Bola, Raqueta, Ladrillo
+from arkanoid2 import ANCHO, ALTO, FPS, BLANCO, ROJO, levels
+from arkanoid2.entities import MarcadorAlt, Bola, Raqueta, Ladrillo
 import pygame as pg
 import random
 import sys
@@ -26,6 +26,7 @@ class Scene():
 
     def bucle_principal(self):
         pass
+    
         ''' #Esto es lo mismo que el pass de arriba
         while True:
             self.maneja_eventos()

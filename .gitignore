@@ -2,4 +2,6 @@ venv/
 Imagen1.jpg
 PTMono.ttc
 .vscode/
+__pycache__/
+
 

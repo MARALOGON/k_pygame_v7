@@ -1,4 +1,3 @@
-
 #Un fichero con este nombre en na carpeta sirve para qeu se cree un modulo para importar con todos los ficheros que contiene la carpea
 
 FPS = 60
